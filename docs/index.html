@@ -57,7 +57,9 @@ dice.scaling = new BABYLON.Vector3(30, 30, 30);
 dice.position = BABYLON.Vector3.Zero();  // Reset position
 dice.rotation = BABYLON.Vector3.Zero();  // Reset rotation
 dice.showBoundingBox = true;  // Optional debugging aid
-camera.setTarget(dice.getBoundingInfo().boundingBox.centerWorld);
+const center = dice.getBoundingInfo().boundingBox.centerWorld;
+dice.position = center.scale(-1);
+camera.setTarget(BABYLON.Vector3.Zero());
      
       return scene;
     };
