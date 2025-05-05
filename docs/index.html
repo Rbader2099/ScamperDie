@@ -54,9 +54,11 @@
     const result = await BABYLON.SceneLoader.ImportMeshAsync("", "./", "ScamperDieV3.glb", scene);
 dice = result.meshes[0];
 dice.scaling = new BABYLON.Vector3(30, 30, 30);
-dice.rotation = new BABYLON.Vector3(0, 0, 0);
+dice.position = BABYLON.Vector3.Zero();  // Reset position
+dice.rotation = BABYLON.Vector3.Zero();  // Reset rotation
 dice.showBoundingBox = true;  // Optional debugging aid
-
+camera.setTarget(dice.getBoundingInfo().boundingBox.centerWorld);
+     
       return scene;
     };
 
