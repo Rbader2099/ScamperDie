@@ -44,7 +44,7 @@
 
     const createScene = async () => {
       const scene = new BABYLON.Scene(engine);
-      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 3, 200, BABYLON.Vector3.Zero(), scene);
+      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 3, 400, BABYLON.Vector3.Zero(), scene);
       camera.attachControl(canvas, true);
       camera.lowerRadiusLimit = 50;
       camera.upperRadiusLimit = 1000;
