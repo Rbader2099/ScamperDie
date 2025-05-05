@@ -44,17 +44,18 @@
 
     const createScene = async () => {
       const scene = new BABYLON.Scene(engine);
-      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 3, 9000, BABYLON.Vector3.Zero(), scene);
+      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 3, 200, BABYLON.Vector3.Zero(), scene);
       camera.attachControl(canvas, true);
-      camera.lowerRadiusLimit = 2000;
-      camera.upperRadiusLimit = 10000;
-
+      camera.lowerRadiusLimit = 50;
+      camera.upperRadiusLimit = 1000;
+      
       const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
-      const result = await BABYLON.SceneLoader.ImportMeshAsync("", "./", "ScamperDieV3.stl", scene);
-      dice = result.meshes[0];
-      dice.scaling = new BABYLON.Vector3(1, 1, 1);
-      dice.rotation = new BABYLON.Vector3(0, 0, 0);
+    const result = await BABYLON.SceneLoader.ImportMeshAsync("", "./", "ScamperDieV3.stl", scene);
+dice = result.meshes[0];
+dice.scaling = new BABYLON.Vector3(30, 30, 30);
+dice.rotation = new BABYLON.Vector3(0, 0, 0);
+dice.showBoundingBox = true;  // Optional debugging aid
 
       return scene;
     };
