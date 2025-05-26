@@ -39,50 +39,58 @@
   <script>
     const canvas = document.getElementById("renderCanvas");
     const engine = new BABYLON.Engine(canvas, true);
-    let dice;
+    let dice, diceParent;
 
     const createScene = async () => {
       const scene = new BABYLON.Scene(engine);
 
       // Camera
-      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 3, 2000, BABYLON.Vector3.Zero(), scene);
+      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 3, 1500, BABYLON.Vector3.Zero(), scene);
       camera.attachControl(canvas, true);
       camera.lowerAlphaLimit = camera.upperAlphaLimit = camera.alpha;
       camera.lowerBetaLimit = camera.upperBetaLimit = camera.beta;
       camera.lowerRadiusLimit = camera.upperRadiusLimit = camera.radius;
 
       // Lighting
-      const hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(1, 1, 0), scene);
-      const spot = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(0, 100, 0), new BABYLON.Vector3(0, -1, 0), Math.PI / 3, 2, scene);
-      spot.diffuse = new BABYLON.Color3(1, 1, 0);
-      spot.intensity = 2;
+      const hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene);
+      hemiLight.intensity = 0.5;
 
-      // Load dice model
+      const spotLight = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(0, 300, 0), new BABYLON.Vector3(0, -1, 0), Math.PI / 2, 2, scene);
+      spotLight.diffuse = new BABYLON.Color3(1, 1, 0);
+      spotLight.specular = new BABYLON.Color3(1, 1, 1);
+      spotLight.intensity = 2;
+
+      // Load dice model and center it in a parent transform node
       const result = await BABYLON.SceneLoader.ImportMeshAsync("", "./", "ScamperDieV3.glb", scene);
       dice = result.meshes[0];
       dice.scaling = new BABYLON.Vector3(30, 30, 30);
-      dice.position = BABYLON.Vector3.Zero();
-      dice.rotation = BABYLON.Vector3.Zero();
+
+      // Create a centered transform node
+      diceParent = new BABYLON.TransformNode("diceParent", scene);
+      dice.parent = diceParent;
+      diceParent.position = BABYLON.Vector3.Zero();
+      diceParent.rotation = BABYLON.Vector3.Zero();
 
       return scene;
     };
 
     function rollDice() {
+      if (!diceParent) return;
       const frameRate = 60;
       const totalFrames = 60;
+
       const x = Math.PI * 2 * Math.floor(Math.random() * 4);
       const y = Math.PI * 2 * Math.floor(Math.random() * 4);
       const z = Math.PI * 2 * Math.floor(Math.random() * 4);
 
       const anim = new BABYLON.Animation("diceRoll", "rotation", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
       anim.setKeys([
-        { frame: 0, value: dice.rotation.clone() },
+        { frame: 0, value: diceParent.rotation.clone() },
         { frame: totalFrames, value: new BABYLON.Vector3(x, y, z) }
       ]);
 
-      dice.animations = [];
-      dice.animations.push(anim);
-      dice.getScene().beginAnimation(dice, 0, totalFrames, false);
+      diceParent.animations = [anim];
+      diceParent.getScene().beginAnimation(diceParent, 0, totalFrames, false);
     }
 
     createScene().then(scene => {
