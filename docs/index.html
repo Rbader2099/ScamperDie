@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCAMPER Dice Roll</title>
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylon.glTFFileLoader.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background-color: #1d1d3b;
+      font-family: sans-serif;
+      color: white;
+    }
+    #uiPanel {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 4px;
+    }
+    #renderCanvas {
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="uiPanel">
+    <button onclick="rollDice()">Roll Dice</button>
+  </div>
+  <canvas id="renderCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById("renderCanvas");
+    const engine = new BABYLON.Engine(canvas, true);
+    let dice;
+
+    const createScene = async () => {
+      const scene = new BABYLON.Scene(engine);
+
+      // Camera
+      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 3, 2000, BABYLON.Vector3.Zero(), scene);
+      camera.attachControl(canvas, true);
+      camera.lowerAlphaLimit = camera.upperAlphaLimit = camera.alpha;
+      camera.lowerBetaLimit = camera.upperBetaLimit = camera.beta;
+      camera.lowerRadiusLimit = camera.upperRadiusLimit = camera.radius;
+
+      // Lighting
+      const hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(1, 1, 0), scene);
+      const spot = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(0, 100, 0), new BABYLON.Vector3(0, -1, 0), Math.PI / 3, 2, scene);
+      spot.diffuse = new BABYLON.Color3(1, 1, 0);
+      spot.intensity = 2;
+
+      // Load dice model
+      const result = await BABYLON.SceneLoader.ImportMeshAsync("", "./", "ScamperDieV3.glb", scene);
+      dice = result.meshes[0];
+      dice.scaling = new BABYLON.Vector3(30, 30, 30);
+      dice.position = BABYLON.Vector3.Zero();
+      dice.rotation = BABYLON.Vector3.Zero();
+
+      return scene;
+    };
+
+    function rollDice() {
+      const frameRate = 60;
+      const totalFrames = 60;
+      const x = Math.PI * 2 * Math.floor(Math.random() * 4);
+      const y = Math.PI * 2 * Math.floor(Math.random() * 4);
+      const z = Math.PI * 2 * Math.floor(Math.random() * 4);
+
+      const anim = new BABYLON.Animation("diceRoll", "rotation", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+      anim.setKeys([
+        { frame: 0, value: dice.rotation.clone() },
+        { frame: totalFrames, value: new BABYLON.Vector3(x, y, z) }
+      ]);
+
+      dice.animations = [];
+      dice.animations.push(anim);
+      dice.getScene().beginAnimation(dice, 0, totalFrames, false);
+    }
+
+    createScene().then(scene => {
+      engine.runRenderLoop(() => scene.render());
+    });
+
+    window.addEventListener("resize", () => engine.resize());
+  </script>
+</body>
+</html>
